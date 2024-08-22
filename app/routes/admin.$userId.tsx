@@ -12,7 +12,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 	await requireUserId(request);
@@ -79,9 +78,9 @@ export default function User() {
 	const HorasTotalMes = Math.floor(soma / 60) + "h " + (soma % 60) + "min";
 	console.log(ano);
 	console.log(HorasTotalMes);
-	const dayFilter = user?.timeSheet.filter(
-		(d) => d.day == dia + "-" + mes + "-" + ano
-	);
+	// const dayFilter = user?.timeSheet.filter(
+	// 	(d) => d.day == dia + "-" + mes + "-" + ano
+	// );
 	return (
 		<>
 			<nav className='bg-slate-200'>
