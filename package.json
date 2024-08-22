@@ -4,7 +4,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
+    "build": "npx prisma db push && npx prisma generate && next build",
+    
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
@@ -24,6 +25,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "isbot": "^4.1.0",
+    "prisma": "^5.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.5.2",
@@ -53,3 +55,5 @@
     "node": ">=20.0.0"
   }
 }
+
+
