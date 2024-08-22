@@ -23,6 +23,7 @@ module.exports = {
 
   // Base config
   extends: ["eslint:recommended"],
+  
 
   overrides: [
     // React
@@ -71,8 +72,10 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
       ],
+      
     },
 
+    
     // Node
     {
       files: [".eslintrc.cjs"],
@@ -81,4 +84,6 @@ module.exports = {
       },
     },
   ],
+  
+  
 };

@@ -50,7 +50,7 @@ export default function User() {
 	const [mes, SetMes] = useState(
 		String(new Date().getMonth() + 1).padStart(2, "0")
 	);
-	const dia = String(new Date().getDate()).padStart(2, "0");
+	// const dia = String(new Date().getDate()).padStart(2, "0");
 
 	const pontoMesAnos = user?.timeSheet.filter((t) =>
 		t.in?.includes(ano + "-" + mes)
