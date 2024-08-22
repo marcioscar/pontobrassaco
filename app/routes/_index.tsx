@@ -209,7 +209,7 @@ export default function Index() {
 						type='submit'
 						name='_action'
 						value={botao().action}
-						className='bg-blue-500 text-white font-bold w-full  '>
+						className='bg-blue-500 h-11 rounded-xl text-white font-bold w-2/6  '>
 						{botao().title}
 					</Button>
 				</Form>
