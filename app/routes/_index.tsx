@@ -122,7 +122,9 @@ export default function Index() {
 		return { title: title, action: acao };
 	}
 
-	console.log(dayFilter?.map((d) => d.min).toString());
+	console.log(
+		dayFilter?.map((d) => d.out).toLocaleString() == "" ? false : true
+	);
 
 	return (
 		<>
@@ -201,7 +203,7 @@ export default function Index() {
 					/>
 					<Button
 						disabled={
-							dayFilter?.map((d) => d.min).toString() != "NaN" ? true : false
+							dayFilter?.map((d) => d.out).toLocaleString() == "" ? false : true
 						}
 						variant='ghost'
 						type='submit'
