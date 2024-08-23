@@ -2,6 +2,7 @@
 import bcrypt from "bcryptjs";
 
 import { prisma } from "./prisma.server";
+import { redirect } from "@remix-run/node";
 
 
 
@@ -27,7 +28,7 @@ export const getUser = async (userId: string) => {
 };
 
 export const hitTimesheet = async (userId, action) => {
-  console.log("action: " + action);
+  
   switch (action) {
     case "entrada": {
       return prisma.user.update({
@@ -138,4 +139,46 @@ export const getUsers = async () => {
       firstName: "asc",
     },
   });
+};
+
+
+export const updateUser = async (user) => {
+  console.log(user)
+  
+    if (user.password) {
+    const passwordHash = await bcrypt.hash(user.password, 10);
+    await prisma.user.update({
+      where: {
+        id: user.userId,
+      },
+      data: {
+        email: user.email,
+        password: passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
+    throw redirect("/admin");
+  } else {
+    await prisma.user.update({
+      where: {
+        id: user.userId,
+      },
+      data: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
+
+    throw redirect("/admin");
+  }
+};
+export const deleteUser = async (user) => {
+  await prisma.user.delete({
+    where: {
+      id: user.userId,
+    },
+  });
+  throw redirect("/admin");
 };

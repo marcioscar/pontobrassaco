@@ -17,6 +17,7 @@ import { requireUserId } from "~/utils/auth.server";
 import { getUser, hitTimesheet } from "~/utils/user.server";
 import { format, differenceInMinutes } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -37,9 +38,21 @@ export function horasDia(
 	entryLunch: Date,
 	exit: Date
 ) {
+	if (!entry) {
+		entry = 0;
+	}
+	if (!exit) {
+		exit = 0;
+	}
+	if (!entryLunch) {
+		entryLunch = 0;
+	}
+	if (!outLunch) {
+		outLunch = 0;
+	}
 	const minuts =
-		differenceInMinutes(outLunch, entry) +
-		differenceInMinutes(exit, entryLunch);
+		differenceInMinutes(outLunch ? outLunch : entry, entry) +
+		differenceInMinutes(exit ? exit : entryLunch, entryLunch);
 	const horas = Math.floor(minuts / 60);
 	const totalMinuts = minuts % 60;
 
@@ -51,9 +64,22 @@ export function minutos(
 	entryLunch: Date,
 	exit: Date
 ) {
+	if (!entry) {
+		entry = 0;
+	}
+	if (!exit) {
+		exit = 0;
+	}
+	if (!entryLunch) {
+		entryLunch = 0;
+	}
+	if (!outLunch) {
+		outLunch = 0;
+	}
+
 	const minuts =
-		differenceInMinutes(outLunch, entry) +
-		differenceInMinutes(exit, entryLunch);
+		differenceInMinutes(outLunch ? outLunch : entry, entry) +
+		differenceInMinutes(exit ? exit : entryLunch, entryLunch);
 
 	return minuts;
 }
@@ -89,7 +115,7 @@ export default function Index() {
 		(acumulador, min) => acumulador + min.min,
 		0
 	);
-
+	console.log(pontoMesAnos);
 	const HorasTotalMes = Math.floor(soma / 60) + "h " + (soma % 60) + "min";
 
 	const dayFilter = user?.timeSheet.filter(
@@ -121,10 +147,6 @@ export default function Index() {
 		});
 		return { title: title, action: acao };
 	}
-
-	console.log(
-		dayFilter?.map((d) => d.out).toLocaleString() == "" ? false : true
-	);
 
 	return (
 		<>
@@ -159,31 +181,38 @@ export default function Index() {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead className=''>Dia</TableHead>
-							<TableHead className=''>Entrada</TableHead>
-							<TableHead className=''>Saída Almoço</TableHead>
-							<TableHead className=''>Entrada Almoço</TableHead>
-							<TableHead className=''>Saída </TableHead>
-							<TableHead className=''>Total </TableHead>
+							<TableHead className=' '>Dia</TableHead>
+							<TableHead className=' text-center'>Entrada</TableHead>
+							<TableHead className=' text-center'>Saída Almoço</TableHead>
+							<TableHead className='text-center'>Entrada Almoço</TableHead>
+							<TableHead className='text-center'>Saída </TableHead>
+							<TableHead className='text-center'>Total </TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{pontoMesAnos?.map((p, index) => (
 							<TableRow key={index}>
 								<TableCell>{p.day}</TableCell>
-								<TableCell>
+
+								<TableCell
+									className={
+										Number(format(p.in, "HH")) > 8
+											? "bg-red-500 rounded-xl text-white text-center"
+											: "text-center"
+									}>
 									{p.in !== null ? format(p.in, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+
+								<TableCell className='text-center'>
 									{p.outLunch !== null ? format(p.outLunch, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{p.inLunch !== null ? format(p.inLunch, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{p.out !== null ? format(p.out, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{horasDia(p.in, p.outLunch, p.inLunch, p.out) ===
 									"NaNh NaNmin"
 										? ""

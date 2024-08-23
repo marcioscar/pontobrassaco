@@ -12,6 +12,19 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 	await requireUserId(request);
@@ -25,9 +38,23 @@ export function minutos(
 	entryLunch: Date,
 	exit: Date
 ) {
+	if (!entry) {
+		entry = 0;
+	}
+	if (!exit) {
+		exit = 0;
+	}
+	if (!entryLunch) {
+		entryLunch = 0;
+	}
+	if (!outLunch) {
+		outLunch = 0;
+	}
+
 	const minuts =
-		differenceInMinutes(outLunch, entry) +
-		differenceInMinutes(exit, entryLunch);
+		differenceInMinutes(outLunch ? outLunch : entry, entry) +
+		differenceInMinutes(exit ? exit : entryLunch, entryLunch);
+
 	return minuts;
 }
 export function horasDia(
@@ -36,9 +63,21 @@ export function horasDia(
 	entryLunch: Date,
 	exit: Date
 ) {
+	if (!entry) {
+		entry = 0;
+	}
+	if (!exit) {
+		exit = 0;
+	}
+	if (!entryLunch) {
+		entryLunch = 0;
+	}
+	if (!outLunch) {
+		outLunch = 0;
+	}
 	const minuts =
-		differenceInMinutes(outLunch, entry) +
-		differenceInMinutes(exit, entryLunch);
+		differenceInMinutes(outLunch ? outLunch : entry, entry) +
+		differenceInMinutes(exit ? exit : entryLunch, entryLunch);
 	const horas = Math.floor(minuts / 60);
 	const totalMinuts = minuts % 60;
 
@@ -55,7 +94,6 @@ export default function User() {
 	const pontoMesAnos = user?.timeSheet.filter((t) =>
 		t.in?.includes(ano + "-" + mes)
 	);
-	console.log(minutos);
 
 	pontoMesAnos?.map((t) => [
 		t.in,
@@ -76,8 +114,7 @@ export default function User() {
 	);
 
 	const HorasTotalMes = Math.floor(soma / 60) + "h " + (soma % 60) + "min";
-	console.log(ano);
-	console.log(HorasTotalMes);
+
 	// const dayFilter = user?.timeSheet.filter(
 	// 	(d) => d.day == dia + "-" + mes + "-" + ano
 	// );
@@ -149,50 +186,151 @@ export default function User() {
 					<TableHeader>
 						<TableRow>
 							<TableHead className=''>Dia</TableHead>
-							<TableHead className=''>Entrada</TableHead>
-							<TableHead className=''>Saída Almoço</TableHead>
-							<TableHead className=''>Entrada Almoço</TableHead>
-							<TableHead className=''>Saída </TableHead>
-							<TableHead className=''>Total </TableHead>
+							<TableHead className='text-center'>Entrada</TableHead>
+							<TableHead className='text-center'>Saída Almoço</TableHead>
+							<TableHead className='text-center'>Entrada Almoço</TableHead>
+							<TableHead className='text-center'>Saída </TableHead>
+							<TableHead className='text-center'>Total </TableHead>
+							<TableHead className='text-center'>Editar</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{pontoMesAnos?.map((p, index) => (
 							<TableRow key={index}>
 								<TableCell>{p.day}</TableCell>
-								<TableCell>
+								<TableCell
+									className={
+										Number(format(p.in, "HH")) > 8
+											? "bg-red-500 rounded-xl text-white text-center"
+											: "text-center"
+									}>
 									{p.in !== null ? format(p.in, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{p.outLunch !== null ? format(p.outLunch, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{p.inLunch !== null ? format(p.inLunch, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{p.out !== null ? format(p.out, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									{horasDia(p.in, p.outLunch, p.inLunch, p.out) ===
 									"NaNh NaNmin"
 										? ""
 										: horasDia(p.in, p.outLunch, p.inLunch, p.out)}
 								</TableCell>
+								<TableCell>
+									<Dialog>
+										<DialogTrigger asChild>
+											<Button className='bg-gray-200 py-2  h-8 '>Editar</Button>
+										</DialogTrigger>
+
+										<DialogContent className=' min-w-[500px] bg-white sm:max-w-[425px]'>
+											<DialogHeader>
+												<DialogTitle>Editar Ponto</DialogTitle>
+												<DialogDescription className='  text-blue-700'>
+													{user?.firstName} dia {p.day}
+												</DialogDescription>
+											</DialogHeader>
+											<Form method='post'>
+												<input
+													hidden
+													value={user.id}
+													name='userId'
+													id='userId'
+												/>
+												<div className='grid gap-4 py-4'>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='in' className='text-right '>
+															Entrada
+														</Label>
+														<Input
+															type='time'
+															id='in'
+															name='in'
+															defaultValue={format(p.in, "HH:mm")}
+															className='col-span-2'
+														/>
+													</div>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label
+															htmlFor='outLunch'
+															className='text-right w-full'>
+															Saida Almoço
+														</Label>
+														<Input
+															type='time'
+															id='outLunch'
+															name='outLunch'
+															defaultValue={
+																p.outLunch !== null
+																	? format(p.outLunch, "HH:mm")
+																	: "---"
+															}
+															className='col-span-2'
+														/>
+													</div>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='inLunch' className='  text-nowrap '>
+															Entrada Almoço
+														</Label>
+														<Input
+															type='time'
+															id='inLunch'
+															name='inLunch'
+															defaultValue={
+																p.inLunch !== null
+																	? format(p.inLunch, "HH:mm")
+																	: "---"
+															}
+															className='  col-span-2'
+														/>
+													</div>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='password' className='text-right'>
+															Saída
+														</Label>
+														<Input
+															type='time'
+															id='out'
+															name='out'
+															defaultValue={
+																p.out !== null ? format(p.out, "HH:mm") : "---"
+															}
+															className='col-span-2'
+														/>
+													</div>
+												</div>
+
+												<DialogFooter>
+													<DialogClose asChild>
+														<Button
+															type='submit'
+															name='_action'
+															value='save'
+															className='bg-emerald-500'>
+															Salvar
+														</Button>
+													</DialogClose>
+													<Button
+														type='submit'
+														name='_action'
+														value='delete'
+														className='bg-gray-200'>
+														Apagar
+													</Button>
+												</DialogFooter>
+											</Form>
+										</DialogContent>
+									</Dialog>
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
 				</Table>
-				<Form method='post' className='flex place-content-center p-4 '>
-					<input
-						hidden
-						type='text'
-						name='userId'
-						required
-						defaultValue={user?.id}
-					/>
-				</Form>
 			</div>
 		</>
 	);
 }
-///foi prara

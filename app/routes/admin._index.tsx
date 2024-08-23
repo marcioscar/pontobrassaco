@@ -1,7 +1,7 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, redirect, useLoaderData } from "@remix-run/react";
+import { ActionFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { Form, NavLink, redirect, useLoaderData } from "@remix-run/react";
 import { requireUserId } from "~/utils/auth.server";
-import { getUser, getUsers } from "~/utils/user.server";
+import { deleteUser, getUser, getUsers, updateUser } from "~/utils/user.server";
 import {
 	Table,
 	TableBody,
@@ -10,6 +10,18 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const userId = await requireUserId(request);
@@ -18,6 +30,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const user = await getUser(userId);
 
 	return { users, user };
+};
+
+export const action: ActionFunction = async ({ request }) => {
+	const form = await request.formData();
+	const values = Object.fromEntries(form);
+
+	const action = form.get("_action");
+
+	if (action === "save") {
+		await updateUser(values);
+	} else {
+		await deleteUser(values);
+	}
+
+	return redirect("/admin");
 };
 
 export default function Admin() {
@@ -63,7 +90,7 @@ export default function Admin() {
 									<div className='text-center items-center  whitespace-nowrap'>
 										<NavLink
 											to={user.id}
-											className=' text-white bg-slate-400/75 hover:bg-[#1da1f2]/80 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55 mr-2'>
+											className=' text-white bg-slate-400/75 hover:bg-[#1da1f2]/80 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg text-sm px-2 py-2 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55 mr-2'>
 											<svg
 												className='mr-2 text-white'
 												xmlns='http://www.w3.org/2000/svg'
@@ -78,6 +105,93 @@ export default function Admin() {
 											Ponto
 										</NavLink>
 									</div>
+								</TableCell>
+								<TableCell>
+									<Dialog>
+										<DialogTrigger asChild>
+											<Button className='bg-gray-200'>Editar</Button>
+										</DialogTrigger>
+
+										<DialogContent className=' min-w-[500px] bg-white sm:max-w-[425px]'>
+											<DialogHeader>
+												<DialogTitle>Editar Funcionário</DialogTitle>
+											</DialogHeader>
+											<Form method='post'>
+												<input
+													hidden
+													value={user.id}
+													name='userId'
+													id='userId'
+												/>
+												<div className='grid gap-4 py-4'>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='name' className='text-right'>
+															Nome
+														</Label>
+														<Input
+															id='firstName'
+															name='firstName'
+															defaultValue={user.firstName}
+															className='col-span-3'
+														/>
+													</div>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='lastName' className='text-right'>
+															Sobrenome
+														</Label>
+														<Input
+															id='lastName'
+															name='lastName'
+															defaultValue={user.lastName}
+															className='col-span-3'
+														/>
+													</div>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='email' className='text-right'>
+															Email
+														</Label>
+														<Input
+															id='email'
+															name='email'
+															defaultValue={user.email}
+															className='col-span-3'
+														/>
+													</div>
+													<div className='grid grid-cols-4 items-center gap-4'>
+														<Label htmlFor='password' className='text-right'>
+															Senha
+														</Label>
+														<Input
+															placeholder='preencher se for trocar a senha'
+															type='password'
+															id='password'
+															name='password'
+															className='col-span-3 placeholder:text-blue-400'
+														/>
+													</div>
+												</div>
+
+												<DialogFooter>
+													<DialogClose asChild>
+														<Button
+															type='submit'
+															name='_action'
+															value='save'
+															className='bg-emerald-500'>
+															Salvar
+														</Button>
+													</DialogClose>
+													<Button
+														type='submit'
+														name='_action'
+														value='delete'
+														className='bg-gray-200'>
+														Apagar
+													</Button>
+												</DialogFooter>
+											</Form>
+										</DialogContent>
+									</Dialog>
 								</TableCell>
 							</TableRow>
 						))}
