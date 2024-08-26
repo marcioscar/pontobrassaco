@@ -1,9 +1,10 @@
+import type { ActionFunctionArgs } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Form, NavLink, useLoaderData } from "@remix-run/react";
-import { differenceInMinutes, format } from "date-fns";
+import { Form, NavLink, redirect, useLoaderData } from "@remix-run/react";
+import { differenceInMinutes, format, isAfter, parse } from "date-fns";
 import { useState } from "react";
 import { requireUserId } from "~/utils/auth.server";
-import { getUser } from "~/utils/user.server";
+import { getUser, updateHit } from "~/utils/user.server";
 import {
 	Table,
 	TableBody,
@@ -83,6 +84,15 @@ export function horasDia(
 
 	return horas + "h " + totalMinuts + "min";
 }
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+	const form = await request.formData();
+	const values = Object.fromEntries(form);
+
+	await updateHit(values);
+	return redirect(".");
+};
+
 export default function User() {
 	const user = useLoaderData<typeof loader>();
 	const [ano, SetAno] = useState(String(new Date().getFullYear()));
@@ -200,7 +210,10 @@ export default function User() {
 								<TableCell>{p.day}</TableCell>
 								<TableCell
 									className={
-										Number(format(p.in, "HH")) > 8
+										isAfter(
+											parse(format(p.in, "HH:mm"), "HH:mm", new Date()),
+											parse("08:00", "HH:mm", new Date())
+										)
 											? "bg-red-500 rounded-xl text-white text-center"
 											: "text-center"
 									}>
@@ -221,10 +234,12 @@ export default function User() {
 										? ""
 										: horasDia(p.in, p.outLunch, p.inLunch, p.out)}
 								</TableCell>
-								<TableCell>
+								<TableCell className='text-center'>
 									<Dialog>
 										<DialogTrigger asChild>
-											<Button className='bg-gray-200 py-2  h-8 '>Editar</Button>
+											<Button className='bg-gray-200  py-2  h-8 '>
+												Editar
+											</Button>
 										</DialogTrigger>
 
 										<DialogContent className=' min-w-[500px] bg-white sm:max-w-[425px]'>
@@ -241,6 +256,13 @@ export default function User() {
 													name='userId'
 													id='userId'
 												/>
+												<input
+													hidden
+													value={p.in.toString()}
+													name='dt'
+													id='dt'
+												/>
+												<input hidden value={p.day} name='day' id='day' />
 												<div className='grid gap-4 py-4'>
 													<div className='grid grid-cols-4 items-center gap-4'>
 														<Label htmlFor='in' className='text-right '>
@@ -314,13 +336,6 @@ export default function User() {
 															Salvar
 														</Button>
 													</DialogClose>
-													<Button
-														type='submit'
-														name='_action'
-														value='delete'
-														className='bg-gray-200'>
-														Apagar
-													</Button>
 												</DialogFooter>
 											</Form>
 										</DialogContent>

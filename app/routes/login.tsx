@@ -9,7 +9,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
 	const form = await request.formData();
-	// console.log(form);
+
 	const action = form.get("_action");
 	const email = form.get("email") as string;
 	const password = form.get("password") as string;

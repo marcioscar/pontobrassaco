@@ -88,7 +88,7 @@ export async function login( email, password ) {
     //   { status: 400 }
     // );
     return null;
-  console.log("role do user no login" + user.role);
+  
   
   if (user.role === "admin") {
 

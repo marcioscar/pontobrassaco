@@ -15,7 +15,7 @@ import {
 import { Form, useLoaderData } from "@remix-run/react";
 import { requireUserId } from "~/utils/auth.server";
 import { getUser, hitTimesheet } from "~/utils/user.server";
-import { format, differenceInMinutes } from "date-fns";
+import { format, differenceInMinutes, isAfter, parse } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -88,7 +88,7 @@ export const action: ActionFunction = async ({ request }) => {
 	const form = await request.formData();
 	const userId = form.get("userId");
 	const action = form.get("_action");
-	console.log(userId, action);
+
 	await hitTimesheet(userId, action);
 	return redirect(`.`);
 };
@@ -115,7 +115,7 @@ export default function Index() {
 		(acumulador, min) => acumulador + min.min,
 		0
 	);
-	console.log(pontoMesAnos);
+
 	const HorasTotalMes = Math.floor(soma / 60) + "h " + (soma % 60) + "min";
 
 	const dayFilter = user?.timeSheet.filter(
@@ -196,7 +196,10 @@ export default function Index() {
 
 								<TableCell
 									className={
-										Number(format(p.in, "HH")) > 8
+										isAfter(
+											parse(format(p.in, "HH:mm"), "HH:mm", new Date()),
+											parse("08:00", "HH:mm", new Date())
+										)
 											? "bg-red-500 rounded-xl text-white text-center"
 											: "text-center"
 									}>

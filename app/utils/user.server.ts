@@ -143,7 +143,7 @@ export const getUsers = async () => {
 
 
 export const updateUser = async (user) => {
-  console.log(user)
+  
   
     if (user.password) {
     const passwordHash = await bcrypt.hash(user.password, 10);
@@ -181,4 +181,28 @@ export const deleteUser = async (user) => {
     },
   });
   throw redirect("/admin");
+};
+
+export const updateHit = async (values: any) => {
+  
+  return prisma.user.update({
+    where: {
+      id: values.userId,
+    },
+    data: {
+      timeSheet: {
+        updateMany: {
+          where: {
+            day: values.day,
+          },
+          data: {
+            in: new Date(values.dt.substring(0, 11) + (values.in? values.in: '00:00') + ":00-03:00"),
+            outLunch: new Date(values.dt.substring(0, 11) + (values.outLunch? values.out : '00:00') + ":00-03:00"),
+            inLunch: new Date(values.dt.substring(0, 11) + (values.inLunch? values.inLunch: '00:00') + ":00-03:00"),
+            out: new Date(values.dt.substring(0, 11) + (values.out? values.out : '00:00') + ":00-03:00"),
+          },
+        },
+      },
+    },
+  });
 };
