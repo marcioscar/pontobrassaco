@@ -135,7 +135,7 @@ export default function User() {
 					<img className='w-32 lg:w-56' src='../logosvg.svg' alt='logo' />
 
 					<select
-						className='rounded  md:block  text-blue-600 h-8 w-28 md:w-40 print:text-black print:w-32 pl-5 pr-10 hover:border-gray-400 focus:outline-none appearance-none'
+						className='rounded  text-sm md:text-base  md:block  text-blue-600 h-8  w-24 md:w-40 pl-5 pr-10 hover:border-gray-400 focus:outline-none appearance-none'
 						value={mes}
 						onChange={(e) => SetMes(e.target.value)}>
 						<option hidden={true} value=''>
@@ -200,14 +200,19 @@ export default function User() {
 							<TableHead className='text-center'>Saída Almoço</TableHead>
 							<TableHead className='text-center'>Entrada Almoço</TableHead>
 							<TableHead className='text-center'>Saída </TableHead>
-							<TableHead className='text-center'>Total </TableHead>
+							<TableHead className=' hidden md:block text-center'>
+								Total{" "}
+							</TableHead>
 							<TableHead className='text-center'>Editar</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{pontoMesAnos?.map((p, index) => (
 							<TableRow key={index}>
-								<TableCell>{p.day}</TableCell>
+								<TableCell className='md:hidden'>
+									{p.day?.slice(0, 2)}
+								</TableCell>
+								<TableCell className='hidden md:block'>{p.day}</TableCell>
 								<TableCell
 									className={
 										isAfter(
@@ -228,7 +233,7 @@ export default function User() {
 								<TableCell className='text-center'>
 									{p.out !== null ? format(p.out, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell className='text-center'>
+								<TableCell className='text-center hidden md:block'>
 									{horasDia(p.in, p.outLunch, p.inLunch, p.out) ===
 									"NaNh NaNmin"
 										? ""

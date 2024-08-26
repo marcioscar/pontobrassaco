@@ -18,6 +18,7 @@ import { getUser, hitTimesheet } from "~/utils/user.server";
 import { format, differenceInMinutes, isAfter, parse } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -186,13 +187,18 @@ export default function Index() {
 							<TableHead className=' text-center'>Saída Almoço</TableHead>
 							<TableHead className='text-center'>Entrada Almoço</TableHead>
 							<TableHead className='text-center'>Saída </TableHead>
-							<TableHead className='text-center'>Total </TableHead>
+							<TableHead className='text-center hidden md:block'>
+								Total{" "}
+							</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{pontoMesAnos?.map((p, index) => (
 							<TableRow key={index}>
-								<TableCell>{p.day}</TableCell>
+								<TableCell className='md:hidden'>
+									{p.day?.slice(0, 2)}
+								</TableCell>
+								<TableCell className='hidden md:block'>{p.day}</TableCell>
 
 								<TableCell
 									className={
@@ -215,7 +221,7 @@ export default function Index() {
 								<TableCell className='text-center'>
 									{p.out !== null ? format(p.out, "HH:mm") : "---"}
 								</TableCell>
-								<TableCell className='text-center'>
+								<TableCell className='text-center hidden md:block'>
 									{horasDia(p.in, p.outLunch, p.inLunch, p.out) ===
 									"NaNh NaNmin"
 										? ""
@@ -241,7 +247,7 @@ export default function Index() {
 						type='submit'
 						name='_action'
 						value={botao().action}
-						className='bg-blue-500 h-11 rounded-xl text-white font-bold w-2/6  '>
+						className='bg-blue-500 h-11 rounded-xl text-white font-bold w-full md:w-2/6  '>
 						{botao().title}
 					</Button>
 				</Form>
