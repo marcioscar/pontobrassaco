@@ -144,7 +144,6 @@ export const getUsers = async () => {
 
 export const updateUser = async (user) => {
   
-  
     if (user.password) {
     const passwordHash = await bcrypt.hash(user.password, 10);
     await prisma.user.update({
@@ -184,8 +183,9 @@ export const deleteUser = async (user) => {
 };
 
 export const updateHit = async (values: any) => {
-  
+  console.log(values)
   return prisma.user.update({
+    
     where: {
       id: values.userId,
     },
